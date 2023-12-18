@@ -1,6 +1,4 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SignInPage from './Components/SignInPage/SignInPage';
-import LayoutPage from './Components/Layout/LayoutPage';
 import Signup from './pages/signup';
 import OtpVerification from './pages/otpverification';
 import FinishSignup from './pages/finishsignup';
@@ -8,23 +6,38 @@ import HomePage from './pages/homepage';
 import ThreePartMultipage from './pages/multipage';
 import UploadPhoto from './pages/uploadphoto';
 import DisplayPhoto from './pages/displayphoto';
-// admin section
-import AdminSignInPage from './AdminPanel/SignInPage/SignInPage'
-import AdminPanelSidenav from './AdminPanel/Sidenav/AdminPanelSidenav'
-import { useEffect } from 'react';
+
+import { useEffect, useState } from 'react';
 
 function App() {
+  const [isScreenLarge, setIsScreenLarge] = useState(window.innerWidth > 768);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsScreenLarge(window.innerWidth > 768);
+    };
+
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
   useEffect(() => {
     const primaryColorFromBackend = localStorage.getItem('themeColor') || '#853836';
     document.documentElement.style.setProperty('--primary-color', primaryColorFromBackend);
   }, []);
+  if (isScreenLarge) {
+    return (
+      <div
+        style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        This website is only accessible for width below 768px. Please shift to a smaller screen.
+      </div>
+    );
+  }
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path='/signin' element={<SignInPage />} />
-          <Route path='/merchant' element={<LayoutPage />} />
-          <Route path='/customer' element={<LayoutPage />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='/otp' element={<OtpVerification />} />
           <Route path='/finish' element={<FinishSignup />} />
@@ -32,9 +45,6 @@ function App() {
           <Route path='/multipage' element={<ThreePartMultipage />} />
           <Route path='/uploadphoto' element={<UploadPhoto />} />
           <Route path='/displayphoto' element={<DisplayPhoto />} />
-          <Route path='/admin/signin' element={<AdminSignInPage />} />
-          <Route path='/admin/dashboard' element={<AdminPanelSidenav />} />
-          
         </Routes>
       </BrowserRouter>
     </>
