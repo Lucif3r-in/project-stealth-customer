@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { IoMdCloseCircleOutline } from 'react-icons/io';
 import { IoBagHandleOutline } from 'react-icons/io5';
-import { MdAddCircleOutline } from 'react-icons/md';
+import { IoMdShare } from 'react-icons/io';
 
 const FullScreenContainer = styled.div`
   margin-bottom: 20px;
@@ -19,6 +19,7 @@ const StyledContainer = styled.div`
   width: 90%;
   display: flex;
   flex-direction: column;
+  position: relative;
 `;
 
 const StyledImage = styled.img`
@@ -57,6 +58,7 @@ const Box = styled.div`
   border-radius: 10px;
   padding: 10px;
   margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 const MiniatureImage = styled.img`
@@ -68,6 +70,10 @@ const MiniatureImage = styled.img`
 `;
 
 const MiniatureText = styled.h5`
+  border: 2px solid white;
+  background-color: white;
+  padding: 5px;
+  border-radius: 10px;
   font-weight: 500;
   margin-top: 10px;
 `;
@@ -77,13 +83,58 @@ const PhotoCarousel = styled.div`
   display: flex;
   overflow-x: scroll;
   margin-top: 10px;
+  overflow: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const ShareButton = styled.button`
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  border: none;
+  color: black;
+  cursor: pointer;
+  background: transparent;
+  paddin: 5%;
+  border-radius: 50%;
+`;
+
+const AddToBagButton = styled.button`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: var(--primary-color);
+  border: none;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 20px;
+`;
+const CircleIndicator = styled.div`
+  height: 10px;
+  width: 10px;
+  background-color: ${(props) => (props.active ? 'var(--primary-color)' : 'lightgray')};
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
 `;
 
 const DisplayPhoto = () => {
   const [uploadedPhotos, setUploadedPhotos] = useState(
     JSON.parse(localStorage.getItem('uploadedPhotos')) || { photo: [], dress: [] },
   );
+  const [activeIndex, setActiveIndex] = useState(0);
+  const newImageRef = useRef(null);
+  const imageRefs = useRef([]);
 
+  useEffect(() => {
+    if (newImageRef.current) {
+      newImageRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [uploadedPhotos]);
   useEffect(() => {
     const photoData = localStorage.getItem('uploadedPhoto');
     if (photoData) {
@@ -134,17 +185,43 @@ const DisplayPhoto = () => {
           </BackLink>
         </ButtonContainer>
         <StyledImage src={uploadedPhotos.photo[0] || ''} alt='Uploaded Photo' />
+        <ShareButton style={{ position: 'absolute' }}>
+          <IoMdShare size={30} color='black' />
+        </ShareButton>
+        <AddToBagButton style={{ position: 'absolute' }}>Add to Bag</AddToBagButton>
       </StyledContainer>
       <DisplayContainer>
         <Box>
-          <MiniatureText>Your Photo</MiniatureText>
           <PhotoCarousel>
-            {uploadedPhotos.photo.map((photo, index) => (
-              <MiniatureImage key={index} src={photo} alt={`photo-${index}`} />
-            ))}
+            {uploadedPhotos.photo.map((photo, index) => {
+              if (!imageRefs.current[index]) {
+                imageRefs.current[index] = React.createRef();
+              }
+
+              return (
+                <MiniatureImage
+                  key={index}
+                  src={photo}
+                  alt={`Uploaded Photo ${index + 1}`}
+                  ref={imageRefs.current[index]}
+                />
+              );
+            })}
           </PhotoCarousel>
+          <div>
+            {uploadedPhotos.photo.map((photo, index) => (
+              <CircleIndicator
+                key={index}
+                active={index === activeIndex}
+                onClick={() => {
+                  setActiveIndex(index);
+                  imageRefs.current[index].current.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+            ))}
+          </div>
           <label htmlFor='file-input-photo'>
-            <MdAddCircleOutline size={20} />
+            <MiniatureText>Your Photo &nbsp;&nbsp;+</MiniatureText>
           </label>
           <input
             id='file-input-photo'
@@ -156,14 +233,38 @@ const DisplayPhoto = () => {
           />
         </Box>
         <Box>
-          <MiniatureText>Your Dress</MiniatureText>
           <PhotoCarousel>
-            {uploadedPhotos.photo.map((photo, index) => (
-              <MiniatureImage key={index} src={photo} alt={`photo-${index}`} />
-            ))}
+            {uploadedPhotos.photo.map((photo, index) => {
+              if (!imageRefs.current[index]) {
+                imageRefs.current[index] = React.createRef();
+              }
+
+              return (
+                <MiniatureImage
+                  key={index}
+                  src={photo}
+                  alt={`Uploaded Photo ${index + 1}`}
+                  ref={imageRefs.current[index]}
+                />
+              );
+            })}
           </PhotoCarousel>
+          <div>
+            {uploadedPhotos.photo.map((photo, index) => (
+              <CircleIndicator
+                key={index}
+                active={index === activeIndex}
+                onClick={() => {
+                  setActiveIndex(index);
+                  imageRefs.current[index].current.scrollIntoView({ behavior: 'smooth' });
+                }}
+              />
+            ))}
+          </div>
           <label htmlFor='file-input-photo'>
-            <MdAddCircleOutline size={20} />
+            <Link to='/uploadphoto' style={{ textDecoration: 'none' }}>
+              <MiniatureText>Your Dress &nbsp;&nbsp;+</MiniatureText>
+            </Link>
           </label>
           <input
             id='file-input-photo'

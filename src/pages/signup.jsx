@@ -51,7 +51,7 @@ function Signup() {
 
   return (
     <SignupContainer>
-      <SignupHeader>Lets Signup</SignupHeader>
+      <SignupHeader>Signup</SignupHeader>
       <InputWrapper>
         <Prefix>+91</Prefix>
         <SignupInput
@@ -61,18 +61,25 @@ function Signup() {
           onChange={(e) => setMobileNumber(e.target.value)}
         />
       </InputWrapper>
-      <button
-        onClick={handleGetOTP}
-        style={{
-          width: '80%',
-          textDecoration: 'none',
-          color: '#fff',
-          background: 'var(--primary-color)',
-          padding: '10px 20px',
-        }}
+      <div
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '68%' }}
       >
-        Get OTP
-      </button>
+        <button
+          onClick={handleGetOTP}
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            textDecoration: 'none',
+            color: '#fff',
+            background: 'var(--primary-color)',
+            padding: '10px 20px',
+            fontSize: '1rem',
+            borderRadius: '15px',
+          }}
+        >
+          Get OTP
+        </button>
+      </div>
     </SignupContainer>
   );
 }

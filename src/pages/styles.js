@@ -31,7 +31,6 @@ export const InputWrapper = styled.div`
 
 export const Prefix = styled.span`
   margin-right: 10px;
-  margin-left: 10px;
   padding: 12px;
   border: 2px solid #000;
   border-radius: 5px;
@@ -39,7 +38,6 @@ export const Prefix = styled.span`
 export const SignupInput = styled.input`
   padding: 10px;
   border-radius: 5px;
-  // margin-bottom: 5%;
   padding-left: 10px;
   position: relative;
 
@@ -49,6 +47,11 @@ export const SignupInput = styled.input`
     position: absolute;
     left: 10px;
     pointer-events: none;
+  }
+  border: 2px solid black;
+  &:focus {
+    outline: none;
+    border-color: #000;
   }
 `;
 

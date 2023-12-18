@@ -1,37 +1,33 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { UploadPhotoContainer, UploadPhotoText, PhotoPreview, UploadButton } from './styles';
+import { FaUpload } from 'react-icons/fa';
+import { UploadButton, UploadPhotoContainer, UploadPhotoText } from './styles';
 
 const UploadPhoto = () => {
   const [photo, setPhoto] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: 'image/*',
     onDrop: async (acceptedFiles) => {
+      setPhoto(URL.createObjectURL(acceptedFiles[0]));
+
       const uploadedPhoto = acceptedFiles[0];
-      setPhoto(URL.createObjectURL(uploadedPhoto));
+      const formData = new FormData();
+      formData.append('file', uploadedPhoto);
 
-      const customerToken = localStorage.getItem('customerToken')
-      const formData = new FormData()
-      formData.append('file', uploadedPhoto)
-
-      // api calling
-      const response = await fetch('https://node-backend.up.railway.app/customer/tryon', {
+      const response = await fetch('/upload', {
         method: 'POST',
-        headers: {
-          'Authorization': customerToken,
-        },
-        body: formData
-      })
+        body: formData,
+      });
 
-      if (response.ok){
-        const data = await response.json()
-        console.log(data)
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
       }
 
-      // Save photo to local storage
       const reader = new FileReader();
       reader.onload = (event) => {
         localStorage.setItem('uploadedPhoto', event.target.result);
@@ -42,21 +38,68 @@ const UploadPhoto = () => {
 
   const handleNext = () => {
     if (photo) {
-      navigate('/displayphoto');
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+        navigate('/displayphoto');
+      }, 2000);
     } else {
-      // Add validation or alert the user that they need to upload a photo
+      <p color='red'>Please Upload a photo</p>;
     }
   };
 
   return (
     <UploadPhotoContainer>
-      <UploadPhotoText>Upload a photo:</UploadPhotoText>
-      <div {...getRootProps()}>
-        <input {...getInputProps()} />
-        <UploadButton>Click to Upload</UploadButton>
-      </div>
-      {photo && <PhotoPreview src={photo} alt='Uploaded Photo' />}
-      <UploadButton onClick={handleNext}>Next</UploadButton>
+      {loading ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+          }}
+        >
+          <p style={{ fontWeight: '700', fontSize: '1rem' }}>Creating a Virtual room</p>
+        </div>
+      ) : (
+        <>
+          <UploadPhotoText>Upload a photo:</UploadPhotoText>
+          <div
+            {...getRootProps()}
+            style={{
+              border: '2px dotted grey',
+              borderRadius: '10px',
+              padding: '80px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '2rem',
+            }}
+          >
+            <input {...getInputProps()} />
+            <FaUpload size={40} />
+            <button
+              style={{
+                border: '2px solid var(--primary-color)',
+                borderRadius: '5px',
+                background: 'transparent',
+                padding: '10px',
+                cursor: 'pointer',
+              }}
+            >
+              {photo ? 'Click on Next' : 'Browse to Upload'}
+            </button>
+          </div>
+          <UploadButton
+            onClick={handleNext}
+            disabled={!photo}
+            style={{ backgroundColor: !photo ? 'lightgray' : 'var(--primary-color)' }}
+          >
+            Next
+          </UploadButton>
+        </>
+      )}
     </UploadPhotoContainer>
   );
 };
